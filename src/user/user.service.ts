@@ -9,7 +9,7 @@ import { QueryFailedError, Repository } from 'typeorm';
 import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshToken, User, UserEntity } from './entity';
-import { RegisterDto, SigninDto } from './dto';
+import { RefreshtokenDto, RegisterDto, SigninDto } from './dto';
 import {
   JwtConfig,
   Payload,
@@ -94,6 +94,30 @@ export class UserService {
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
+    };
+  }
+
+  public async refreshToken(
+    user: UserEntity,
+    dto: RefreshtokenDto,
+  ): Promise<{
+    access_token: string;
+  }> {
+    const refreshToken = await this.refreshTokenRepo.findOne({
+      where: { token: dto.refreshToken },
+    });
+
+    if (!refreshToken) throw new UnauthorizedException();
+
+    const payload: Payload = {
+      sub: user.id,
+      email: user.email,
+    };
+
+    const accessToken = this.generateJWT(payload, accessTokenConfig());
+
+    return {
+      access_token: accessToken,
     };
   }
 

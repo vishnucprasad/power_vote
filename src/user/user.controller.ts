@@ -9,10 +9,10 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { RegisterDto, SigninDto } from './dto';
+import { RefreshtokenDto, RegisterDto, SigninDto } from './dto';
 import { UserService } from './user.service';
 import { UserEntity } from './entity';
-import { AccessGuard } from './guard';
+import { AccessGuard, RefreshGuard } from './guard';
 import { SerializeUser } from './decorator';
 
 @Controller('user')
@@ -21,7 +21,7 @@ export class UserController {
 
   @UseGuards(AccessGuard)
   @Get()
-  getUser(@SerializeUser() user: UserEntity) {
+  getUser(@SerializeUser() user: UserEntity): UserEntity {
     return user;
   }
 
@@ -38,5 +38,17 @@ export class UserController {
     refresh_token: string;
   }> {
     return this.userService.signin(dto);
+  }
+
+  @UseGuards(RefreshGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh')
+  refreshToken(
+    @SerializeUser() user: UserEntity,
+    @Body() dto: RefreshtokenDto,
+  ): Promise<{
+    access_token: string;
+  }> {
+    return this.userService.refreshToken(user, dto);
   }
 }
