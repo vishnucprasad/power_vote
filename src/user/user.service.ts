@@ -15,7 +15,7 @@ import {
   Payload,
   accessTokenConfig,
   refreshTokenConfig,
-} from '../../src/config';
+} from '../config';
 
 @Injectable()
 export class UserService {

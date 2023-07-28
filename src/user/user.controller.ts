@@ -2,18 +2,28 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { RegisterDto, SigninDto } from './dto';
 import { UserService } from './user.service';
 import { UserEntity } from './entity';
+import { AccessGuard } from './guard';
+import { SerializeUser } from './decorator';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @UseGuards(AccessGuard)
+  @Get()
+  getUser(@SerializeUser() user: UserEntity) {
+    return user;
+  }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('register')
