@@ -16,8 +16,8 @@ services:
       - 5435:5432
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: power_vote_passwd
-      POSTGRES_DB: power_vote_db
+      POSTGRES_PASSWORD: test_passwd
+      POSTGRES_DB: power_vote_db_test
     networks:
       - vishnucprasad
 networks:
