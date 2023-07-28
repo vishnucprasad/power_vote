@@ -152,7 +152,7 @@ describe('User /user', () => {
         password: 'invalid',
       };
 
-      spec().post('/user/signin').withBody(dto).expectStatus(401);
+      return spec().post('/user/signin').withBody(dto).expectStatus(401);
     });
 
     it('should signin the user', () => {
@@ -167,6 +167,26 @@ describe('User /user', () => {
         .expectStatus(200)
         .stores('accessToken', 'access_token')
         .stores('refreshToken', 'refresh_token');
+    });
+  });
+
+  describe('GET /user', () => {
+    it('should throw an error if no authorization bearer is provided', () => {
+      return spec().get('/user').expectStatus(401);
+    });
+
+    it('should throw an error if provided authorization bearer is invalid', () => {
+      return spec()
+        .get('/user')
+        .withBearerToken('invalid bearer token')
+        .expectStatus(401);
+    });
+
+    it('should get user details', () => {
+      return spec()
+        .get('/user')
+        .withBearerToken('$S{accessToken}')
+        .expectStatus(200);
     });
   });
 });
