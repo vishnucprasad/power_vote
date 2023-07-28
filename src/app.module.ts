@@ -2,12 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
-import { User } from './user/entity';
+import { RefreshToken, User } from './user/entity';
+import { accessTokenConfig, refreshTokenConfig } from './config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      load: [accessTokenConfig, refreshTokenConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -19,7 +21,7 @@ import { User } from './user/entity';
         username: config.get('POSTGRES_USER'),
         password: config.get('POSTGRES_PASSWORD'),
         database: config.get('POSTGRES_DATABASE'),
-        entities: [User],
+        entities: [User, RefreshToken],
         synchronize: true,
       }),
     }),
