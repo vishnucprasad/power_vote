@@ -5,7 +5,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { AppModule } from '../src/app.module';
 import { RefreshToken, User } from '../src/user/entity';
 import { Repository } from 'typeorm';
-import { RegisterDto, SigninDto } from 'src/user/dto';
+import { RefreshtokenDto, RegisterDto, SigninDto } from 'src/user/dto';
 
 let app: INestApplication;
 
@@ -187,6 +187,28 @@ describe('User /user', () => {
         .get('/user')
         .withBearerToken('$S{accessToken}')
         .expectStatus(200);
+    });
+  });
+
+  describe('POST /user/refresh', () => {
+    it('should throw an error if no body is provided', () => {
+      return spec().post('/user/refresh').expectStatus(401);
+    });
+
+    it('should throw an error if provided refresh token is invalid', () => {
+      const dto: RefreshtokenDto = {
+        refreshToken: 'invalid refresh token',
+      };
+
+      return spec().post('/user/refresh').withBody(dto).expectStatus(401);
+    });
+
+    it('should refresh the access token', () => {
+      const dto: RefreshtokenDto = {
+        refreshToken: '$S{refreshToken}',
+      };
+
+      return spec().post('/user/refresh').withBody(dto).expectStatus(200);
     });
   });
 });
