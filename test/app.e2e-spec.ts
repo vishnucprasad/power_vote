@@ -3,9 +3,9 @@ import { Test } from '@nestjs/testing';
 import { request, spec } from 'pactum';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AppModule } from '../src/app.module';
-import { User } from '../src/user/entity';
+import { RefreshToken, User } from '../src/user/entity';
 import { Repository } from 'typeorm';
-import { RegisterDto } from 'src/user/dto';
+import { RegisterDto, SigninDto } from 'src/user/dto';
 
 let app: INestApplication;
 
@@ -26,7 +26,11 @@ beforeAll(async () => {
   request.setBaseUrl('http://localhost:3001');
 
   const userRepo: Repository<User> = moduleRef.get(getRepositoryToken(User));
-  userRepo.clear();
+  const refreshTokenRepo: Repository<RefreshToken> = moduleRef.get(
+    getRepositoryToken(RefreshToken),
+  );
+  refreshTokenRepo.delete({});
+  userRepo.delete({});
 });
 
 afterAll(() => {
@@ -109,6 +113,60 @@ describe('User /user', () => {
         .withBody(dto)
         .expectStatus(403)
         .expectBodyContains(dto.email);
+    });
+  });
+
+  describe('POST /user/signin', () => {
+    it('should throw an error if no body is provided', () => {
+      return spec().post('/user/signin').expectStatus(400);
+    });
+
+    it('should throw an error if email is empty', () => {
+      const dto: Omit<SigninDto, 'email'> = {
+        password: 'JohnDoe@123',
+      };
+
+      return spec().post('/user/signin').withBody(dto).expectStatus(400);
+    });
+
+    it('should throw an error if password is empty', () => {
+      const dto: Omit<SigninDto, 'password'> = {
+        email: 'johndoe@example.com',
+      };
+
+      return spec().post('/user/signin').withBody(dto).expectStatus(400);
+    });
+
+    it('should throw an error if provided email is invalid', () => {
+      const dto: SigninDto = {
+        email: 'john@example.com',
+        password: 'JohnDoe@123',
+      };
+
+      return spec().post('/user/signin').withBody(dto).expectStatus(404);
+    });
+
+    it('should throw an error if provided password is invalid', () => {
+      const dto: SigninDto = {
+        email: 'johndoe@example.com',
+        password: 'invalid',
+      };
+
+      spec().post('/user/signin').withBody(dto).expectStatus(401);
+    });
+
+    it('should signin the user', () => {
+      const dto: SigninDto = {
+        email: 'johndoe@example.com',
+        password: 'JohnDoe@123',
+      };
+
+      return spec()
+        .post('/user/signin')
+        .withBody(dto)
+        .expectStatus(200)
+        .stores('accessToken', 'access_token')
+        .stores('refreshToken', 'refresh_token');
     });
   });
 });
