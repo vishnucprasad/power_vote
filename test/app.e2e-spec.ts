@@ -225,4 +225,18 @@ describe('User /user', () => {
         .expectStatus(200);
     });
   });
+
+  describe('DELETE /user/signout', () => {
+    it('should throw an error if no authorization bearer is provided', () => {
+      return spec().delete('/user/signout').expectStatus(401);
+    });
+
+    it('should signout user', () => {
+      return spec()
+        .delete('/user/signout')
+        .withBearerToken('$S{accessToken}')
+        .expectStatus(204)
+        .expectBody('');
+    });
+  });
 });
