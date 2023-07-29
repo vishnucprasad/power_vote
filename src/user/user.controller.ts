@@ -2,6 +2,7 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -61,5 +62,12 @@ export class UserController {
     @Body() dto: EditUserDto,
   ): Promise<UpdateResult> {
     return this.userService.editUser(userId, dto);
+  }
+
+  @UseGuards(AccessGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete('/signout')
+  signout(@SerializeUser() user: UserEntity): Promise<void> {
+    return this.userService.signout(user);
   }
 }

@@ -146,6 +146,10 @@ export class UserService {
     );
   }
 
+  public async signout(user: UserEntity): Promise<void> {
+    await this.refreshTokenRepo.delete({ user });
+  }
+
   public generateJWT(payload: Payload, config: JwtConfig): string {
     return this.jwtService.sign(payload, {
       secret: config.secret,
