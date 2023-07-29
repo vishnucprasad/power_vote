@@ -5,11 +5,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryFailedError, Repository } from 'typeorm';
+import { QueryFailedError, Repository, UpdateResult } from 'typeorm';
 import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshToken, User, UserEntity } from './entity';
-import { RefreshtokenDto, RegisterDto, SigninDto } from './dto';
+import { EditUserDto, RefreshtokenDto, RegisterDto, SigninDto } from './dto';
 import {
   JwtConfig,
   Payload,
@@ -119,6 +119,31 @@ export class UserService {
     return {
       access_token: accessToken,
     };
+  }
+
+  public async editUser(
+    userId: number,
+    dto: EditUserDto,
+  ): Promise<UpdateResult> {
+    if (dto.password) {
+      const { password, ...rest } = dto;
+      const hash = await argon.hash(password);
+
+      return await this.userRepo.update(
+        { id: userId },
+        {
+          hash,
+          ...rest,
+        },
+      );
+    }
+
+    return await this.userRepo.update(
+      { id: userId },
+      {
+        ...dto,
+      },
+    );
   }
 
   public generateJWT(payload: Payload, config: JwtConfig): string {

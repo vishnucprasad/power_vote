@@ -5,15 +5,17 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { RefreshtokenDto, RegisterDto, SigninDto } from './dto';
+import { EditUserDto, RefreshtokenDto, RegisterDto, SigninDto } from './dto';
 import { UserService } from './user.service';
 import { UserEntity } from './entity';
 import { AccessGuard, RefreshGuard } from './guard';
 import { SerializeUser } from './decorator';
+import { UpdateResult } from 'typeorm';
 
 @Controller('user')
 export class UserController {
@@ -50,5 +52,14 @@ export class UserController {
     access_token: string;
   }> {
     return this.userService.refreshToken(user, dto);
+  }
+
+  @UseGuards(AccessGuard)
+  @Patch('/edit')
+  editUser(
+    @SerializeUser('id') userId: number,
+    @Body() dto: EditUserDto,
+  ): Promise<UpdateResult> {
+    return this.userService.editUser(userId, dto);
   }
 }
