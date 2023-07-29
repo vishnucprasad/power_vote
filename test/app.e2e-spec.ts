@@ -211,4 +211,18 @@ describe('User /user', () => {
       return spec().post('/user/refresh').withBody(dto).expectStatus(200);
     });
   });
+
+  describe('PATCH /user/edit', () => {
+    it('should throw an error if no authorization bearer is provided', () => {
+      return spec().patch('/user/edit').expectStatus(401);
+    });
+
+    it('should edit user', () => {
+      return spec()
+        .patch('/user/edit')
+        .withBearerToken('$S{accessToken}')
+        .withBody({ lastName: 'Henry' })
+        .expectStatus(200);
+    });
+  });
 });
