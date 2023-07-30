@@ -14,6 +14,14 @@ export class PollService {
     private readonly pollOptionRepo: Repository<PollOption>,
   ) {}
 
+  public async getPolls(): Promise<Poll[]> {
+    return await this.pollRepo.find({
+      relations: {
+        options: true,
+      },
+    });
+  }
+
   public async createPoll(user: UserEntity, dto: CreatePollDto): Promise<Poll> {
     const pollOptions = await this.pollOptionRepo.save(dto.options);
 
