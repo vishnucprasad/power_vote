@@ -35,10 +35,10 @@ beforeAll(async () => {
   const pollOptionRepo: Repository<PollOption> = moduleRef.get(
     getRepositoryToken(PollOption),
   );
-  refreshTokenRepo.delete({});
-  userRepo.delete({});
   pollOptionRepo.delete({});
   pollRepo.delete({});
+  refreshTokenRepo.delete({});
+  userRepo.delete({});
 });
 
 afterAll(() => {
@@ -338,6 +338,17 @@ describe('Poll /poll', () => {
           id: '$S{pollId}',
         })
         .expectStatus(401);
+    });
+
+    it('should throw an error if provided id is not a valid UUID', () => {
+      return spec()
+        .get('/poll/{id}')
+        .withPathParams({
+          id: 'pollId',
+        })
+        .withBearerToken('$S{accessToken}')
+        .expectStatus(400)
+        .inspect();
     });
 
     it('should get poll by id', () => {
