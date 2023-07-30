@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { ArrayMinSize, IsArray, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreatePollDto {
   @IsString()
@@ -6,6 +6,6 @@ export class CreatePollDto {
   question: string;
 
   @IsArray()
-  @IsNotEmpty()
-  options: [{ option: string }];
+  @ArrayMinSize(1)
+  options: { option: string }[];
 }

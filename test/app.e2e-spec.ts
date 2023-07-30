@@ -5,7 +5,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { AppModule } from '../src/app.module';
 import { RefreshToken, User } from '../src/user/entity';
 import { Repository } from 'typeorm';
-import { RefreshtokenDto, RegisterDto, SigninDto } from 'src/user/dto';
+import { RefreshtokenDto, RegisterDto, SigninDto } from '../src/user/dto';
+import { CreatePollDto } from '../src/poll/dto';
+import { Poll, PollOption } from '../src/poll/entity';
 
 let app: INestApplication;
 
@@ -29,8 +31,14 @@ beforeAll(async () => {
   const refreshTokenRepo: Repository<RefreshToken> = moduleRef.get(
     getRepositoryToken(RefreshToken),
   );
+  const pollRepo: Repository<Poll> = moduleRef.get(getRepositoryToken(Poll));
+  const pollOptionRepo: Repository<PollOption> = moduleRef.get(
+    getRepositoryToken(PollOption),
+  );
   refreshTokenRepo.delete({});
   userRepo.delete({});
+  pollOptionRepo.delete({});
+  pollRepo.delete({});
 });
 
 afterAll(() => {
@@ -237,6 +245,74 @@ describe('User /user', () => {
         .withBearerToken('$S{accessToken}')
         .expectStatus(204)
         .expectBody('');
+    });
+  });
+});
+
+describe('Poll /poll', () => {
+  describe('POST /poll/create', () => {
+    it('should throw an error if no authorization bearer is provided', () => {
+      return spec().post('/poll/create').expectStatus(401);
+    });
+
+    it('should throw an error if question is empty', () => {
+      const dto: Omit<CreatePollDto, 'question'> = {
+        options: [
+          { option: 'Yes, extensively' },
+          { option: 'Yes, but only for a small part of the project' },
+          { option: "No, but I'm interested in learning it" },
+          { option: "No, and I don't plan to use it" },
+        ],
+      };
+
+      return spec()
+        .post('/poll/create')
+        .withBearerToken('$S{accessToken}')
+        .withBody(dto)
+        .expectStatus(400);
+    });
+
+    it('should throw an error if options is empty', () => {
+      const dto: Omit<CreatePollDto, 'options'> = {
+        question: 'Have you ever used TypeScript in a project ?',
+      };
+
+      return spec()
+        .post('/poll/create')
+        .withBearerToken('$S{accessToken}')
+        .withBody(dto)
+        .expectStatus(400);
+    });
+
+    it('should throw an error if options array is empty', () => {
+      const dto: CreatePollDto = {
+        question: 'Have you ever used TypeScript in a project ?',
+        options: [],
+      };
+
+      return spec()
+        .post('/poll/create')
+        .withBearerToken('$S{accessToken}')
+        .withBody(dto)
+        .expectStatus(400);
+    });
+
+    it('should create poll', () => {
+      const dto: CreatePollDto = {
+        question: 'Have you ever used TypeScript in a project ?',
+        options: [
+          { option: 'Yes, extensively' },
+          { option: 'Yes, but only for a small part of the project' },
+          { option: "No, but I'm interested in learning it" },
+          { option: "No, and I don't plan to use it" },
+        ],
+      };
+
+      return spec()
+        .post('/poll/create')
+        .withBearerToken('$S{accessToken}')
+        .withBody(dto)
+        .expectStatus(201);
     });
   });
 });

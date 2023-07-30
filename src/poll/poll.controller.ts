@@ -2,8 +2,8 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { CreatePollDto } from './dto';
 import { PollService } from './poll.service';
 import { AccessGuard } from '../user/guard';
-import { UserEntity } from 'src/user/entity';
-import { SerializeUser } from 'src/user/decorator';
+import { UserEntity } from '../user/entity';
+import { SerializeUser } from '../user/decorator';
 import { Poll } from './entity';
 
 @Controller('poll')

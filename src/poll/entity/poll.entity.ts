@@ -3,8 +3,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -22,7 +22,7 @@ export class Poll {
   @OneToMany(() => PollOption, (option) => option.poll, { cascade: true })
   options: PollOption[];
 
-  @OneToOne((type) => User)
+  @ManyToOne((type) => User)
   @JoinColumn()
   createdBy: User;
 
