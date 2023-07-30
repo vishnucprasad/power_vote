@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CreatePollDto } from './dto';
 import { PollService } from './poll.service';
 import { AccessGuard } from '../user/guard';
@@ -14,6 +14,11 @@ export class PollController {
   @Get()
   getPolls(): Promise<Poll[]> {
     return this.pollService.getPolls();
+  }
+
+  @Get(':id')
+  getPollById(@Param('id') pollId: string): Promise<Poll> {
+    return this.pollService.getPollById(pollId);
   }
 
   @Post('create')

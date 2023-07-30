@@ -22,6 +22,17 @@ export class PollService {
     });
   }
 
+  public async getPollById(pollId: string): Promise<Poll> {
+    return await this.pollRepo.findOne({
+      where: {
+        id: pollId,
+      },
+      relations: {
+        options: true,
+      },
+    });
+  }
+
   public async createPoll(user: UserEntity, dto: CreatePollDto): Promise<Poll> {
     const pollOptions = await this.pollOptionRepo.save(dto.options);
 
