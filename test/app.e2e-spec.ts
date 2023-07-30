@@ -315,4 +315,17 @@ describe('Poll /poll', () => {
         .expectStatus(201);
     });
   });
+
+  describe('GET /poll', () => {
+    it('should throw an error if no authorization bearer is provided', () => {
+      return spec().get('/poll').expectStatus(401);
+    });
+
+    it('should get polls', () => {
+      return spec()
+        .get('/poll')
+        .withBearerToken('$S{accessToken}')
+        .expectStatus(200);
+    });
+  });
 });
