@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { RefreshToken, User } from './user/entity';
 import { accessTokenConfig, refreshTokenConfig } from './config';
+import { PollModule } from './poll/poll.module';
+import { Poll, PollOption } from './poll/entity';
 
 @Module({
   imports: [
@@ -21,11 +23,12 @@ import { accessTokenConfig, refreshTokenConfig } from './config';
         username: config.get('POSTGRES_USER'),
         password: config.get('POSTGRES_PASSWORD'),
         database: config.get('POSTGRES_DATABASE'),
-        entities: [User, RefreshToken],
+        entities: [User, RefreshToken, Poll, PollOption],
         synchronize: true,
       }),
     }),
     UserModule,
+    PollModule,
   ],
 })
 export class AppModule {}
