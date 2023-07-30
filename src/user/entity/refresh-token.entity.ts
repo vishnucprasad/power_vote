@@ -11,8 +11,8 @@ import { User } from './user.entity';
 
 @Entity()
 export class RefreshToken {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @OneToOne((type) => User)
   @JoinColumn()

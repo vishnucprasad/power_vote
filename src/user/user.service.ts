@@ -122,7 +122,7 @@ export class UserService {
   }
 
   public async editUser(
-    userId: number,
+    userId: string,
     dto: EditUserDto,
   ): Promise<UpdateResult> {
     if (dto.password) {

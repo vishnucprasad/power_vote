@@ -9,8 +9,8 @@ import {
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   firstName: string;
@@ -35,7 +35,7 @@ export class User {
 }
 
 export class UserEntity {
-  id: number;
+  id: string;
   firstName: string;
   lastName: string;
   email: string;

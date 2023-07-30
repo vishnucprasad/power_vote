@@ -4,7 +4,7 @@ export type JwtConfig = {
 };
 
 export type Payload = {
-  sub: number;
+  sub: string;
   email: string;
 };
 

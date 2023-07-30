@@ -56,9 +56,9 @@ export class UserController {
   }
 
   @UseGuards(AccessGuard)
-  @Patch('/edit')
+  @Patch('edit')
   editUser(
-    @SerializeUser('id') userId: number,
+    @SerializeUser('id') userId: string,
     @Body() dto: EditUserDto,
   ): Promise<UpdateResult> {
     return this.userService.editUser(userId, dto);
@@ -66,7 +66,7 @@ export class UserController {
 
   @UseGuards(AccessGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Delete('/signout')
+  @Delete('signout')
   signout(@SerializeUser() user: UserEntity): Promise<void> {
     return this.userService.signout(user);
   }
