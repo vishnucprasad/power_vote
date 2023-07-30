@@ -312,7 +312,8 @@ describe('Poll /poll', () => {
         .post('/poll/create')
         .withBearerToken('$S{accessToken}')
         .withBody(dto)
-        .expectStatus(201);
+        .expectStatus(201)
+        .stores('pollId', 'id');
     });
   });
 
@@ -324,6 +325,27 @@ describe('Poll /poll', () => {
     it('should get polls', () => {
       return spec()
         .get('/poll')
+        .withBearerToken('$S{accessToken}')
+        .expectStatus(200);
+    });
+  });
+
+  describe('GET /poll/:id', () => {
+    it('should throw an error if no authorization bearer is provided', () => {
+      return spec()
+        .get('/poll/{id}')
+        .withPathParams({
+          id: '$S{pollId}',
+        })
+        .expectStatus(401);
+    });
+
+    it('should get poll by id', () => {
+      return spec()
+        .get('/poll/{id}')
+        .withPathParams({
+          id: '$S{pollId}',
+        })
         .withBearerToken('$S{accessToken}')
         .expectStatus(200);
     });
