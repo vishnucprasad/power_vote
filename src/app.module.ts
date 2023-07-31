@@ -5,7 +5,7 @@ import { UserModule } from './user/user.module';
 import { RefreshToken, User } from './user/entity';
 import { accessTokenConfig, refreshTokenConfig } from './config';
 import { PollModule } from './poll/poll.module';
-import { Poll, PollOption } from './poll/entity';
+import { Poll, PollOption, Vote } from './poll/entity';
 
 @Module({
   imports: [
@@ -23,7 +23,7 @@ import { Poll, PollOption } from './poll/entity';
         username: config.get('POSTGRES_USER'),
         password: config.get('POSTGRES_PASSWORD'),
         database: config.get('POSTGRES_DATABASE'),
-        entities: [User, RefreshToken, Poll, PollOption],
+        entities: [User, RefreshToken, Poll, PollOption, Vote],
         synchronize: true,
       }),
     }),

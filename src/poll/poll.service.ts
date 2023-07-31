@@ -17,7 +17,9 @@ export class PollService {
   public async getPolls(): Promise<Poll[]> {
     return await this.pollRepo.find({
       relations: {
-        options: true,
+        options: {
+          votes: true,
+        },
       },
     });
   }
@@ -28,7 +30,9 @@ export class PollService {
         id: pollId,
       },
       relations: {
-        options: true,
+        options: {
+          votes: true,
+        },
       },
     });
   }

@@ -1,28 +1,25 @@
 import {
-  Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Poll } from './poll.entity';
-import { Vote } from './vote.entity';
+import { PollOption } from './poll-option.entity';
+import { User } from '../../user/entity';
 
 @Entity()
-export class PollOption {
+export class Vote {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  option: string;
+  @ManyToOne(() => PollOption, (pollOption) => pollOption.votes)
+  pollOption: PollOption;
 
-  @OneToMany(() => Vote, (option) => option.pollOption, { cascade: true })
-  votes: Vote[];
-
-  @ManyToOne(() => Poll, (poll) => poll.options)
-  poll: Poll;
+  @ManyToOne((type) => User)
+  @JoinColumn()
+  votedBy: User;
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
