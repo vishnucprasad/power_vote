@@ -6,8 +6,8 @@ import { AppModule } from '../src/app.module';
 import { RefreshToken, User } from '../src/user/entity';
 import { Repository } from 'typeorm';
 import { RefreshtokenDto, RegisterDto, SigninDto } from '../src/user/dto';
-import { CreatePollDto } from '../src/poll/dto';
-import { Poll, PollOption } from '../src/poll/entity';
+import { CreatePollDto, UuidDto } from '../src/poll/dto';
+import { Poll, PollOption, Vote } from '../src/poll/entity';
 
 let app: INestApplication;
 
@@ -35,6 +35,9 @@ beforeAll(async () => {
   const pollOptionRepo: Repository<PollOption> = moduleRef.get(
     getRepositoryToken(PollOption),
   );
+  const voteRepo: Repository<Vote> = moduleRef.get(getRepositoryToken(Vote));
+
+  voteRepo.delete({});
   pollOptionRepo.delete({});
   pollRepo.delete({});
   refreshTokenRepo.delete({});
@@ -313,7 +316,8 @@ describe('Poll /poll', () => {
         .withBearerToken('$S{accessToken}')
         .withBody(dto)
         .expectStatus(201)
-        .stores('pollId', 'id');
+        .stores('pollId', 'id')
+        .stores('optionId', 'options[0].id');
     });
   });
 
@@ -347,8 +351,7 @@ describe('Poll /poll', () => {
           id: 'pollId',
         })
         .withBearerToken('$S{accessToken}')
-        .expectStatus(400)
-        .inspect();
+        .expectStatus(400);
     });
 
     it('should get poll by id', () => {
@@ -359,6 +362,82 @@ describe('Poll /poll', () => {
         })
         .withBearerToken('$S{accessToken}')
         .expectStatus(200);
+    });
+  });
+
+  describe('POST /poll/cast/:id', () => {
+    it('should throw an error if no authorization bearer is provided', () => {
+      const dto: UuidDto = {
+        id: '$S{optionId}',
+      };
+
+      return spec()
+        .post('/poll/cast/{id}')
+        .withPathParams({
+          id: '$S{pollId}',
+        })
+        .withBody(dto)
+        .expectStatus(401);
+    });
+
+    it('should throw an error if provided option id in body is not a valid UUID', () => {
+      const dto: UuidDto = {
+        id: 'optionId',
+      };
+
+      return spec()
+        .post('/poll/cast/{id}')
+        .withBearerToken('$S{accessToken}')
+        .withPathParams({
+          id: '$S{pollId}',
+        })
+        .withBody(dto)
+        .expectStatus(400);
+    });
+
+    it('should throw an error if provided pollId is not a valid UUID', () => {
+      const dto: UuidDto = {
+        id: '$S{optionId}',
+      };
+
+      return spec()
+        .post('/poll/cast/{id}')
+        .withBearerToken('$S{accessToken}')
+        .withPathParams({
+          id: 'pollId',
+        })
+        .withBody(dto)
+        .expectStatus(400);
+    });
+
+    it('should cast the vote', () => {
+      const dto: UuidDto = {
+        id: '$S{optionId}',
+      };
+
+      return spec()
+        .post('/poll/cast/{id}')
+        .withBearerToken('$S{accessToken}')
+        .withPathParams({
+          id: '$S{pollId}',
+        })
+        .withBody(dto)
+        .expectStatus(201);
+    });
+
+    it('should throw an error if user already has voted for the poll', () => {
+      const dto: UuidDto = {
+        id: '$S{optionId}',
+      };
+
+      return spec()
+        .post('/poll/cast/{id}')
+        .withBearerToken('$S{accessToken}')
+        .withPathParams({
+          id: '$S{pollId}',
+        })
+        .withBody(dto)
+        .expectStatus(403);
     });
   });
 });

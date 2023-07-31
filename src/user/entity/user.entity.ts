@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { Poll, Vote } from 'src/poll/entity';
+import { Poll, Vote } from '../../poll/entity';
 import {
   Entity,
   Column,
