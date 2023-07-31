@@ -1,10 +1,19 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { CreatePollDto, UuidDto } from './dto';
 import { PollService } from './poll.service';
 import { AccessGuard } from '../user/guard';
 import { UserEntity } from '../user/entity';
 import { SerializeUser } from '../user/decorator';
-import { Poll } from './entity';
+import { Poll, Vote } from './entity';
+import { DeleteResult } from 'typeorm';
 
 @UseGuards(AccessGuard)
 @Controller('poll')
@@ -34,7 +43,15 @@ export class PollController {
     @SerializeUser('id') userId: string,
     @Body() option: UuidDto,
     @Param() poll: UuidDto,
-  ) {
+  ): Promise<Vote> {
     return this.pollService.castVote(userId, option.id, poll.id);
+  }
+
+  @Delete('retract/:id')
+  retractVote(
+    @SerializeUser() user: UserEntity,
+    @Param() dto: UuidDto,
+  ): Promise<DeleteResult> {
+    return this.pollService.retractVote(user, dto.id);
   }
 }

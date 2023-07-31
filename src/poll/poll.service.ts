@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreatePollDto } from './dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Poll, PollOption, Vote } from './entity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { User, UserEntity } from '../user/entity';
 
 @Injectable()
@@ -51,7 +51,11 @@ export class PollService {
     });
   }
 
-  public async castVote(userId: string, optionId: string, pollId: string) {
+  public async castVote(
+    userId: string,
+    optionId: string,
+    pollId: string,
+  ): Promise<Vote> {
     const user = await this.userRepo.findOne({
       where: { id: userId },
       relations: { votes: { pollOption: { poll: true } } },
@@ -71,6 +75,18 @@ export class PollService {
 
     return await this.voteRepo.save({
       pollOption,
+      votedBy: user,
+    });
+  }
+
+  public async retractVote(
+    user: UserEntity,
+    optionId: string,
+  ): Promise<DeleteResult> {
+    const pollOption = await this.pollOptionRepo.findOneBy({ id: optionId });
+
+    return await this.voteRepo.delete({
+      pollOption: pollOption,
       votedBy: user,
     });
   }
