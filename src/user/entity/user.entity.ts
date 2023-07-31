@@ -1,10 +1,12 @@
 import { Exclude } from 'class-transformer';
+import { Poll, Vote } from 'src/poll/entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -32,6 +34,12 @@ export class User {
 
   @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
+
+  @OneToMany(() => Poll, (poll) => poll.createdBy)
+  polls: Poll[];
+
+  @OneToMany(() => Vote, (vote) => vote.votedBy)
+  votes: Vote[];
 }
 
 export class UserEntity {

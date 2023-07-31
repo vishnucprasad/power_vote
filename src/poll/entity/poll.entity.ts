@@ -23,7 +23,7 @@ export class Poll {
   options: PollOption[];
 
   @ManyToOne((type) => User)
-  @JoinColumn()
+  @JoinColumn({ name: 'createdBy' })
   createdBy: User;
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })

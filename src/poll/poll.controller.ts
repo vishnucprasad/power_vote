@@ -28,4 +28,13 @@ export class PollController {
   ): Promise<Poll> {
     return this.pollService.createPoll(user, dto);
   }
+
+  @Post('cast/:id')
+  castVote(
+    @SerializeUser('id') userId: string,
+    @Body() option: UuidDto,
+    @Param() poll: UuidDto,
+  ) {
+    return this.pollService.castVote(userId, option.id, poll.id);
+  }
 }
