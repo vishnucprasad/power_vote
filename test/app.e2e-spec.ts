@@ -440,4 +440,35 @@ describe('Poll /poll', () => {
         .expectStatus(403);
     });
   });
+
+  describe('DELETE /poll/retract/:id', () => {
+    it('should throw an error if no authorization bearer is provided', () => {
+      return spec()
+        .delete('/poll/retract/{id}')
+        .withPathParams({
+          id: '$S{optionId}',
+        })
+        .expectStatus(401);
+    });
+
+    it('should throw an eror if provided optionId is not a valid UUID', () => {
+      return spec()
+        .delete('/poll/retract/{id}')
+        .withBearerToken('$S{accessToken}')
+        .withPathParams({
+          id: 'optionId',
+        })
+        .expectStatus(400);
+    });
+
+    it('should retract the vote', () => {
+      return spec()
+        .delete('/poll/retract/{id}')
+        .withBearerToken('$S{accessToken}')
+        .withPathParams({
+          id: '$S{optionId}',
+        })
+        .expectStatus(200);
+    });
+  });
 });
