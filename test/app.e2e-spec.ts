@@ -6,7 +6,7 @@ import { AppModule } from '../src/app.module';
 import { RefreshToken, User } from '../src/user/entity';
 import { Repository } from 'typeorm';
 import { RefreshtokenDto, RegisterDto, SigninDto } from '../src/user/dto';
-import { CreatePollDto, UuidDto } from '../src/poll/dto';
+import { CreatePollDto, EditPollDto, UuidDto } from '../src/poll/dto';
 import { Poll, PollOption, Vote } from '../src/poll/entity';
 
 let app: INestApplication;
@@ -362,6 +362,81 @@ describe('Poll /poll', () => {
         })
         .withBearerToken('$S{accessToken}')
         .expectStatus(200);
+    });
+  });
+
+  describe('PATCH /poll/edit/:id', () => {
+    it('should throw an error if no authorization bearer is provided', () => {
+      const dto: EditPollDto = {
+        question: 'This is an edited question for this poll',
+        options: [
+          { option: 'This is an edited option' },
+          { option: 'This is another edited option' },
+        ],
+      };
+
+      return spec()
+        .patch('/poll/edit/{id}')
+        .withPathParams({
+          id: '$S{pollId}',
+        })
+        .withBody(dto)
+        .expectStatus(401);
+    });
+
+    it('should throw an error if provided pollId is not a valid UUID', () => {
+      const dto: EditPollDto = {
+        question: 'This is an edited question for this poll',
+        options: [
+          { option: 'This is an edited option' },
+          { option: 'This is another edited option' },
+        ],
+      };
+
+      return spec()
+        .patch('/poll/edit/{id}')
+        .withBearerToken('$S{accessToken}')
+        .withPathParams({
+          id: 'pollId',
+        })
+        .withBody(dto)
+        .expectStatus(400);
+    });
+
+    it('should throw an error if provided options array is empty', () => {
+      const dto: EditPollDto = {
+        question: 'This is an edited question for this poll',
+        options: [],
+      };
+
+      return spec()
+        .patch('/poll/edit/{id}')
+        .withBearerToken('$S{accessToken}')
+        .withPathParams({
+          id: '$S{pollId}',
+        })
+        .withBody(dto)
+        .expectStatus(400);
+    });
+
+    it('should edit the poll', () => {
+      const dto: EditPollDto = {
+        question: 'This is an edited question for this poll',
+        options: [
+          { option: 'This is an edited option' },
+          { option: 'This is another edited option' },
+        ],
+      };
+
+      return spec()
+        .patch('/poll/edit/{id}')
+        .withBearerToken('$S{accessToken}')
+        .withPathParams({
+          id: '$S{pollId}',
+        })
+        .withBody(dto)
+        .expectStatus(200)
+        .stores('optionId', 'options[0].id');
     });
   });
 
