@@ -546,4 +546,31 @@ describe('Poll /poll', () => {
         .expectStatus(200);
     });
   });
+
+  describe('DELETE /poll/:id', () => {
+    it('should throw an error if no authorization bearer is provided', () => {
+      return spec()
+        .delete('/poll/{id}')
+        .withPathParams({
+          id: '$S{pollId}',
+        })
+        .expectStatus(401);
+    });
+
+    it('should throw an error if provided pollId is not a valid UUID', () => {
+      return spec()
+        .delete('/poll/{id}')
+        .withBearerToken('$S{accessToken}')
+        .withPathParams({ id: 'pollId' })
+        .expectStatus(400);
+    });
+
+    it('should delete the poll', () => {
+      return spec()
+        .delete('/poll/{id}')
+        .withBearerToken('$S{accessToken}')
+        .withPathParams({ id: '$S{pollId}' })
+        .expectStatus(200);
+    });
+  });
 });
