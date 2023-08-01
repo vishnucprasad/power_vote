@@ -112,4 +112,29 @@ export class PollService {
       votedBy: user,
     });
   }
+
+  public async deletePoll(
+    user: UserEntity,
+    pollId: string,
+  ): Promise<DeleteResult> {
+    const poll = await this.pollRepo.findOne({
+      where: { id: pollId },
+      relations: {
+        createdBy: true,
+        options: true,
+      },
+    });
+
+    if (poll.createdBy.id !== user.id) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    const promises = [];
+    for (let option of poll.options) {
+      promises.push(this.pollOptionRepo.delete({ id: option.id }));
+    }
+
+    await Promise.all(promises);
+    return await this.pollRepo.delete({ id: poll.id });
+  }
 }

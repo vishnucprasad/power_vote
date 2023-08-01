@@ -39,11 +39,6 @@ export class PollController {
     return this.pollService.createPoll(user, dto);
   }
 
-  @Patch('edit/:id')
-  editPoll(@Param() poll: UuidDto, @Body() dto: EditPollDto): Promise<Poll> {
-    return this.pollService.editPoll(poll.id, dto);
-  }
-
   @Post('cast/:id')
   castVote(
     @SerializeUser('id') userId: string,
@@ -53,11 +48,24 @@ export class PollController {
     return this.pollService.castVote(userId, option.id, poll.id);
   }
 
+  @Patch('edit/:id')
+  editPoll(@Param() poll: UuidDto, @Body() dto: EditPollDto): Promise<Poll> {
+    return this.pollService.editPoll(poll.id, dto);
+  }
+
   @Delete('retract/:id')
   retractVote(
     @SerializeUser() user: UserEntity,
     @Param() dto: UuidDto,
   ): Promise<DeleteResult> {
     return this.pollService.retractVote(user, dto.id);
+  }
+
+  @Delete(':id')
+  deletePoll(
+    @SerializeUser() user: UserEntity,
+    @Param() poll: UuidDto,
+  ): Promise<DeleteResult> {
+    return this.pollService.deletePoll(user, poll.id);
   }
 }
