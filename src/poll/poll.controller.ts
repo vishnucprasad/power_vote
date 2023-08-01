@@ -4,10 +4,11 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { CreatePollDto, UuidDto } from './dto';
+import { CreatePollDto, EditPollDto, UuidDto } from './dto';
 import { PollService } from './poll.service';
 import { AccessGuard } from '../user/guard';
 import { UserEntity } from '../user/entity';
@@ -36,6 +37,11 @@ export class PollController {
     @Body() dto: CreatePollDto,
   ): Promise<Poll> {
     return this.pollService.createPoll(user, dto);
+  }
+
+  @Patch('edit/:id')
+  editPoll(@Param() poll: UuidDto, @Body() dto: EditPollDto): Promise<Poll> {
+    return this.pollService.editPoll(poll.id, dto);
   }
 
   @Post('cast/:id')

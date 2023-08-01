@@ -6,6 +6,6 @@ export class CreatePollDto {
   question: string;
 
   @IsArray()
-  @ArrayMinSize(1)
+  @ArrayMinSize(2)
   options: { option: string }[];
 }

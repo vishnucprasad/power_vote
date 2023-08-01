@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { CreatePollDto } from './dto';
+import { CreatePollDto, EditPollDto } from './dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Poll, PollOption, Vote } from './entity';
 import { DeleteResult, Repository } from 'typeorm';
@@ -49,6 +49,28 @@ export class PollService {
       options: pollOptions,
       createdBy: user,
     });
+  }
+
+  public async editPoll(pollId: string, dto: EditPollDto): Promise<Poll> {
+    const poll = await this.pollRepo.findOne({
+      where: { id: pollId },
+      relations: { options: true },
+    });
+
+    if (dto.options) {
+      const promises = [];
+      for (let option of poll.options) {
+        promises.push(this.pollOptionRepo.delete({ id: option.id }));
+      }
+
+      await Promise.all(promises);
+      const options = await this.pollOptionRepo.save(dto.options);
+      poll.options = options;
+    }
+
+    if (dto.question) poll.question = dto.question;
+
+    return await this.pollRepo.save(poll);
   }
 
   public async castVote(
